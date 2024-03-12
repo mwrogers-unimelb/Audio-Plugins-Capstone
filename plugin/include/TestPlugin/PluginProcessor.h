@@ -6,6 +6,7 @@
 class AudioPluginAudioProcessor final : public juce::AudioProcessor
 {
 public:
+    const juce::String JucePlugin_Name = "TestPlugin";
     juce::AudioParameterFloat* gain;
 
     //==============================================================================

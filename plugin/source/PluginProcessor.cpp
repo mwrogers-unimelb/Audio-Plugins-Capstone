@@ -12,6 +12,11 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                      #endif
                        )
 {
+    addParameter (gain = new juce::AudioParameterFloat ("gain", // parameterID
+                                                        "Gain", // parameter name
+                                                        0.0f,   // minimum value
+                                                        1.0f,   // maximum value
+                                                        0.5f)); // default value
 }
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor()
@@ -151,6 +156,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         juce::ignoreUnused (channelData);
         // ..do something to the data...
     }
+    buffer.applyGain (*gain);
 }
 
 //==============================================================================
@@ -171,6 +177,7 @@ void AudioPluginAudioProcessor::getStateInformation (juce::MemoryBlock& destData
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
     juce::ignoreUnused (destData);
+    juce::MemoryOutputStream (destData, true).writeFloat (*gain);
 }
 
 void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
@@ -178,6 +185,7 @@ void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeI
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
     juce::ignoreUnused (data, sizeInBytes);
+    *gain = juce::MemoryInputStream (data, static_cast<size_t> (sizeInBytes), false).readFloat();
 }
 
 //==============================================================================

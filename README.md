@@ -16,3 +16,5 @@ In the Audio-Plugins-Capstone directory, run:
 This will take a while on the first run.
 
 Currently, the gain plugin simply adjusts the volume of the track it is placed on. It does not save the state it was closed in so it will reset to a value of 0.5 upon opening.
+
+Note: for plugin updates to be visible in ableton, ableton must be restarted and then plugins rescanned in preferences.

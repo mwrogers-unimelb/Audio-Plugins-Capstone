@@ -41,7 +41,7 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
     // set the font size and draw text to the screen
     g.setFont (15.0f);
  
-    g.drawFittedText ("Gain", 0, 0, getWidth(), 30, juce::Justification::centred, 1);
+    g.drawFittedText ("Channel Gain", 0, 0, getWidth(), 30, juce::Justification::centred, 1);
 }
 
 void AudioPluginAudioProcessorEditor::resized()

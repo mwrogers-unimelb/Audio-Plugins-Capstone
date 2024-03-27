@@ -7,6 +7,9 @@ class AudioPluginAudioProcessor final : public juce::AudioProcessor
 {
 public:
     juce::AudioParameterFloat* gain;
+    juce::AudioParameterBool* invertPhase;
+
+    float previousGain;
 
     //==============================================================================
     AudioPluginAudioProcessor();

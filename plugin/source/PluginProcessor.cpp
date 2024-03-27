@@ -17,6 +17,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                                                         0.0f,   // minimum value
                                                         1.0f,   // maximum value
                                                         0.5f)); // default value
+    addParameter (invertPhase = new juce::AudioParameterBool  ("invertPhase", "Invert Phase", false));
 }
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor()
@@ -94,6 +95,9 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
     juce::ignoreUnused (sampleRate, samplesPerBlock);
+
+    auto phase = *invertPhase ? -1.0f : 1.0f;
+    previousGain = *gain * phase; // Store prev gain for gain smoothing with a ramp
 }
 
 void AudioPluginAudioProcessor::releaseResources()
@@ -156,7 +160,20 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         juce::ignoreUnused (channelData);
         // ..do something to the data...
     }
-    buffer.applyGain (*gain);
+
+    // Update gain, with smoothing and phase inversion
+    auto phase = *invertPhase ? -1.0f : 1.0f; // conditional operator to convert the bool flag invertPhase to either -1.0 (true) or 1.0 (false)
+    auto currentGain = *gain * phase;
+
+    if (juce::approximatelyEqual (currentGain, previousGain))
+    {
+        buffer.applyGain (currentGain);
+    }
+    else
+    {
+        buffer.applyGainRamp (0, buffer.getNumSamples(), previousGain, currentGain);
+        previousGain = currentGain;
+    }
 }
 
 //==============================================================================
@@ -174,10 +191,13 @@ juce::AudioProcessorEditor* AudioPluginAudioProcessor::createEditor()
 void AudioPluginAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
     // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+    // Currently reads saved plugin state from xml format (easier to debug and version control).
     juce::ignoreUnused (destData);
-    juce::MemoryOutputStream (destData, true).writeFloat (*gain);
+
+    std::unique_ptr<juce::XmlElement> xml (new juce::XmlElement ("TestPlugin"));
+    xml->setAttribute ("gain", (double) *gain);
+    xml->setAttribute ("invertPhase", *invertPhase);
+    copyXmlToBinary (*xml, destData);
 }
 
 void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
@@ -185,7 +205,16 @@ void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeI
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
     juce::ignoreUnused (data, sizeInBytes);
-    *gain = juce::MemoryInputStream (data, static_cast<size_t> (sizeInBytes), false).readFloat();
+
+    std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+    if (xmlState.get() != nullptr)
+    {
+        if (xmlState->hasTagName ("TestPlugin"))
+        {
+            *gain = (float) xmlState->getDoubleAttribute ("gain", 1.0); // Default value of 1.0 if parameter not found
+            *invertPhase = xmlState->getBoolAttribute ("invertPhase", false);
+        }
+    }
 }
 
 //==============================================================================

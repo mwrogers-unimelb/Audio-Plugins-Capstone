@@ -10,7 +10,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     // editor's size to whatever you need it to be.
     setSize (400, 300);
 
-    // these define the parameters of our slider object
+    // define the parameters of slider object
     gainVal.setSliderStyle (juce::Slider::LinearBarVertical);
     gainVal.setRange (0.0, 1.0, 0.01);
     gainVal.setTextBoxStyle (juce::Slider::NoTextBox, false, 90, 0);
@@ -18,11 +18,18 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     gainVal.setTextValueSuffix (" Volume");
     gainVal.setValue(0.5);
 
+    // define parameters of button object
+    phaseButton.setName("phaseInvert");
+    phaseButton.setButtonText("Phase Invert (False)");
+    phaseButton.setClickingTogglesState(true);
+
     // add the listener to the slider
     gainVal.addListener (this);
+    phaseButton.addListener (this);
  
     // this function adds the slider to the editor
     addAndMakeVisible (&gainVal);
+    addAndMakeVisible (&phaseButton);
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
@@ -51,10 +58,25 @@ void AudioPluginAudioProcessorEditor::resized()
 
     // sets the position and size of the slider with arguments (x, y, width, height)
     gainVal.setBounds (40, 30, 20, getHeight() - 60);
+
+    // sets the position and size of the button
+    phaseButton.setBounds(80, 30, 150, 20);
 }
 
 // Function to read and set the volume based on the slider value
 void AudioPluginAudioProcessorEditor::sliderValueChanged (juce::Slider* slider)
 {
     processorRef.gain->operator= (gainVal.getValue());
+}
+
+// Function to read and set the invert phase button based on value
+void AudioPluginAudioProcessorEditor::buttonClicked (juce::Button* button)
+{
+    processorRef.invertPhase->operator= (phaseButton.getToggleState());
+    if (phaseButton.getToggleState()) {
+        phaseButton.setButtonText("Phase Invert (True)");
+    }
+    if (!phaseButton.getToggleState()) {
+        phaseButton.setButtonText("Phase Invert (False)");
+    }
 }

@@ -6,10 +6,11 @@
 class AudioPluginAudioProcessor final : public juce::AudioProcessor
 {
 public:
-    juce::AudioParameterFloat* gain;
-    juce::AudioParameterBool* invertPhase;
-
+    juce::AudioProcessorValueTreeState parameters;
     float previousGain;
+
+    std::atomic<float>* phaseParameter = nullptr;
+    std::atomic<float>* gainParameter  = nullptr; // pointers to gain and phase invert parameters, accessed in subclass constructor
 
     //==============================================================================
     AudioPluginAudioProcessor();

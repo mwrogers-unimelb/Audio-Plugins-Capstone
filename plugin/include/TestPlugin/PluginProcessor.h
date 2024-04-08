@@ -10,7 +10,7 @@ public:
     float previousGain;
 
     std::atomic<float>* phaseParameter = nullptr;
-    std::atomic<float>* gainParameter  = nullptr;
+    std::atomic<float>* gainParameter  = nullptr; // pointers to gain and phase invert parameters, accessed in subclass constructor
 
     //==============================================================================
     AudioPluginAudioProcessor();

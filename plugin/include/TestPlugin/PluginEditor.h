@@ -6,12 +6,10 @@ typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
 typedef juce::AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;
 
 //==============================================================================
-class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor,
-                                              private juce::Slider::Listener, 
-                                              private juce::Button::Listener
+class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor
 {
 public:
-    explicit AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor&);
+    explicit AudioPluginAudioProcessorEditor (juce::AudioProcessor& parent, juce::AudioProcessorValueTreeState& vts);
     ~AudioPluginAudioProcessorEditor() override;
 
     //==============================================================================
@@ -19,12 +17,7 @@ public:
     void resized() override;
 
 private:
-    void sliderValueChanged (juce::Slider* slider) override;
-    void buttonClicked (juce::Button* button) override;
-
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
-    juce::AudioProcessorValueTreeState& valueTreeState;
+    juce::AudioProcessorValueTreeState& valueTreeState; // pointer to parameter state in processor
 
     juce::Label gainLabel;
     juce::Slider gainSlider;

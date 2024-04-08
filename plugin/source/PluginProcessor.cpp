@@ -3,21 +3,20 @@
 
 //==============================================================================
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
-     : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       )
+    : parameters (*this, nullptr, juce::Identifier ("TestPlugin"),
+                    {
+                        std::make_unique<juce::AudioParameterFloat> ("gain",            // parameterID
+                                                                    "Gain",            // parameter name
+                                                                    0.0f,              // minimum value
+                                                                    1.0f,              // maximum value
+                                                                    0.5f),             // default value
+                        std::make_unique<juce::AudioParameterBool> ("invertPhase",      // parameterID
+                                                                    "Invert Phase",     // parameter name
+                                                                    false)              // default value
+                    })
 {
-    addParameter (gain = new juce::AudioParameterFloat ("gain", // parameterID
-                                                        "Gain", // parameter name
-                                                        0.0f,   // minimum value
-                                                        1.0f,   // maximum value
-                                                        0.5f)); // default value
-    addParameter (invertPhase = new juce::AudioParameterBool  ("invertPhase", "Invert Phase", false));
+    phaseParameter = parameters.getRawParameterValue ("invertPhase");
+    gainParameter  = parameters.getRawParameterValue ("gain");
 }
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor()
@@ -96,8 +95,8 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     // initialisation that you need..
     juce::ignoreUnused (sampleRate, samplesPerBlock);
 
-    auto phase = *invertPhase ? -1.0f : 1.0f;
-    previousGain = *gain * phase; // Store prev gain for gain smoothing with a ramp
+    auto phase = *phaseParameter < 0.5f ? 1.0f : -1.0f;
+    previousGain = *gainParameter * phase; // Store prev gain for gain smoothing with a ramp
 }
 
 void AudioPluginAudioProcessor::releaseResources()
@@ -162,8 +161,8 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     }
 
     // Update gain, with smoothing and phase inversion
-    auto phase = *invertPhase ? -1.0f : 1.0f; // conditional operator to convert the bool flag invertPhase to either -1.0 (true) or 1.0 (false)
-    auto currentGain = *gain * phase;
+    auto phase = *phaseParameter < 0.5f ? 1.0f : -1.0f; // conditional operator to convert the bool flag invertPhase to either -1.0 (true) or 1.0 (false)
+    auto currentGain = *gainParameter * phase;
 
     if (juce::approximatelyEqual (currentGain, previousGain))
     {
@@ -184,7 +183,7 @@ bool AudioPluginAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* AudioPluginAudioProcessor::createEditor()
 {
-    return new AudioPluginAudioProcessorEditor (*this);
+    return new AudioPluginAudioProcessorEditor (*this, *parameters);
 }
 
 //==============================================================================
@@ -194,9 +193,8 @@ void AudioPluginAudioProcessor::getStateInformation (juce::MemoryBlock& destData
     // Currently reads saved plugin state from xml format (easier to debug and version control).
     juce::ignoreUnused (destData);
 
-    std::unique_ptr<juce::XmlElement> xml (new juce::XmlElement ("TestPlugin"));
-    xml->setAttribute ("gain", (double) *gain);
-    xml->setAttribute ("invertPhase", *invertPhase);
+    auto state = parameters.copyState();
+    std::unique_ptr<juce::XmlElement> xml (state.createXml());
     copyXmlToBinary (*xml, destData);
 }
 
@@ -209,10 +207,9 @@ void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeI
     std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
     if (xmlState.get() != nullptr)
     {
-        if (xmlState->hasTagName ("TestPlugin"))
+        if (xmlState->hasTagName (parameters.state.getType()))
         {
-            *gain = (float) xmlState->getDoubleAttribute ("gain", 1.0); // Default value of 1.0 if parameter not found
-            *invertPhase = xmlState->getBoolAttribute ("invertPhase", false);
+            parameters.replaceState (juce::ValueTree::fromXml (*xmlState));
         }
     }
 }

@@ -2,6 +2,9 @@
 
 #include "PluginProcessor.h"
 
+typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
+typedef juce::AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;
+
 //==============================================================================
 class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor,
                                               private juce::Slider::Listener, 
@@ -21,10 +24,14 @@ private:
 
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
-    AudioPluginAudioProcessor& processorRef;
+    juce::AudioProcessorValueTreeState& valueTreeState;
 
-    juce::Slider gainVal; // create slider to control gain value
-    juce::TextButton phaseButton; // create button to control phase invert
+    juce::Label gainLabel;
+    juce::Slider gainSlider;
+    std::unique_ptr<SliderAttachment> gainAttachment;
+ 
+    juce::ToggleButton invertButton;
+    std::unique_ptr<ButtonAttachment> invertAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
 };

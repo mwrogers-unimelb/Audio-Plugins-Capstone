@@ -2,8 +2,8 @@
 #include "TestPlugin/PluginEditor.h"
 
 //==============================================================================
-AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor& p)
-    : AudioProcessorEditor (&p), processorRef (p)
+AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (juce::AudioProcessor& parent, juce::AudioProcessorValueTreeState& vts)
+    : AudioProcessorEditor (parent), valueTreeState (vts)
 {
     juce::ignoreUnused (processorRef);
     // Make sure that before the constructor has finished, you've set the
@@ -11,25 +11,16 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     setSize (400, 300);
 
     // define the parameters of slider object
-    gainVal.setSliderStyle (juce::Slider::LinearBarVertical);
-    gainVal.setRange (0.0, 1.0, 0.01);
-    gainVal.setTextBoxStyle (juce::Slider::NoTextBox, false, 90, 0);
-    gainVal.setPopupDisplayEnabled (true, false, this);
-    gainVal.setTextValueSuffix (" Volume");
-    gainVal.setValue(0.5);
+    gainLabel.setText ("Gain", juce::dontSendNotification);
+    addAndMakeVisible (gainLabel);
+
+    addAndMakeVisible (gainSlider);
+    gainAttachment.reset (new SliderAttachment (valueTreeState, "gain", gainSlider));
 
     // define parameters of button object
-    phaseButton.setName("phaseInvert");
-    phaseButton.setButtonText("Phase Invert (False)");
-    phaseButton.setClickingTogglesState(true);
-
-    // add the listener to the slider
-    gainVal.addListener (this);
-    phaseButton.addListener (this);
- 
-    // this function adds the slider to the editor
-    addAndMakeVisible (&gainVal);
-    addAndMakeVisible (&phaseButton);
+    invertButton.setButtonText ("Invert Phase");
+    addAndMakeVisible (invertButton);
+    invertAttachment.reset (new ButtonAttachment (valueTreeState, "invertPhase", invertButton));
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()

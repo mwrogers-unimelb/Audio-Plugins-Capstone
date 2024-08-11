@@ -1,19 +1,15 @@
-%% 8 Microphone Linear Beamforming Design
-% Simulates beam patterns for the 8-mic array, based on a simple fixed,
+%% 16 Microphone Linear Beamforming Design
+% Simulates beam patterns for the 16-mic array, based on a simple fixed,
 % narrowband beamforming design
 clear
 
 % Constants
 hhr = [20 20e3];
-N_mics = 8; % number of selected microphones
+N_mics = 16; % number of selected microphones
 v_sound = 343; % sound speed through air, m/s
 
-% create basic cardioid microphone pattern for simulation
-microphone = phased.CustomMicrophoneElement(FrequencyVector=hhr, ...
-    PolarPatternFrequencies=[500 1000]);
-microphone.PolarPattern = mag2db([...
-    0.5+0.5*cosd(microphone.PolarPatternAngles);...
-    0.6+0.4*cosd(microphone.PolarPatternAngles)]);
+% create basic omnidirectional microphone pattern for simulation
+microphone = phased.OmnidirectionalMicrophoneElement('FrequencyRange', hhr, 'BackBaffled', true);
 
 %% Microphone spacing design selection: 
 % currently set so that beamformer performs best at middle frequency of human hearing range

@@ -13,6 +13,7 @@ Python dependencies:
     pyroomacoustics
     matplotlib
     numpy
+    scipy
 
 MATLAB code should be able to run, as long as the phased array toolbox is installed.
 

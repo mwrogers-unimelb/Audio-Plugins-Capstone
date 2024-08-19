@@ -14,6 +14,7 @@ Python dependencies:
     matplotlib
     numpy
     scipy
+    playsound
 
 MATLAB code should be able to run, as long as the phased array toolbox is installed.
 

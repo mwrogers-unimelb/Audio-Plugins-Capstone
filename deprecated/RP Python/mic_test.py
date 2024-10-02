@@ -9,7 +9,6 @@ from scipy.io import wavfile
 # Open SPI bus
 spi = spidev.SpiDev()
 spi.open(0, 0)  # (bus, device), for CE0
-
 spi.max_speed_hz = 7500000
 spi.mode = 0
 

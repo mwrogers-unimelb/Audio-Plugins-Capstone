@@ -2,3 +2,4 @@ build/
 libs/
 .vscode/
 **/.DS_Store
+**.venv

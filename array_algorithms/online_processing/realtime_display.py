@@ -22,8 +22,11 @@ block_number = 0
 init_blocks = 10
 ks = np.zeros(shape=(channels, init_blocks))
 
+mic_positions = np.array([[-0.48,-0.24,-0.16,-0.08,0,0.08,0.24,0.48],[0]*channels])
 R = pra.linear_2D_array(center=array_loc, M=channels, phi=0, d=sep)
-music = pra.doa.normmusic.NormMUSIC(R, Fs, nfft,num_src=1,azimuth = np.linspace(0, 180, 181)*np.pi/180,mode='near')
+print(mic_positions)
+print(R)
+music = pra.doa.normmusic.NormMUSIC(mic_positions, Fs, nfft,num_src=1,azimuth = np.linspace(0, 180, 181)*np.pi/180,mode='near')
 q = queue.Queue()
 
 print(sd.query_devices(deviceID, 'input'))

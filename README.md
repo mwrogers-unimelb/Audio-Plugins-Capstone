@@ -1,6 +1,6 @@
 # Capstone Audio Plugins
 
-Stores all shared code for development of beamforming and DOA algorithms, and other plugin development.
+Stores all code for the project: Designing Audio Effect Plugins, which investigated the application of acoustic phased arrays to live performance settings.
 
 
 ## Usage
@@ -16,13 +16,22 @@ Python dependencies:
     numpy
     scipy
     playsound
+    jupyter
 
 MATLAB code should be able to run, as long as the phased array toolbox is installed.
 
 
+## Description
+
+Each sub-directory contains code to perform the functions as described below.
+
 ### array_algorithms
 
-Currently contains design simulations of a variety of scenarios, as well as physical tests of algorithms on real-world samples (not included in the repo). This includes:
+Parent python code foler. Currently contains design simulations of a variety of scenarios, as well as physical tests of algorithms on real-world samples (not included in the repo), and online processing.
+
+#### basic_algorithms
+
+A basic introduction and application of beamforming and DOA algorithms used in the project.
 
 #### design_sims
 
@@ -30,12 +39,20 @@ A variety of simulations to select array parameters (algorithm, geometry, locati
 
 #### input_samples
 
-input sound files for some code sections.
+input sound files for array simulations (vocal sounds).
 
 #### output_samples
 
-processed output sound files for some code sections.
+processed output sound files from simulation and hardware tests.
+
+#### array_samples
+
+recordings from the hardware array, for offline processing.
 
 #### physical_tests
 
-implementations of algorithms to be run on hardware.
+implementations of algorithms to be run on hardware, offline.
+
+#### online_processing
+
+algorithms designed to process audio online (in real-time) for the built hardware array.

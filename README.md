@@ -17,6 +17,7 @@ Python dependencies:
     scipy
     playsound
     jupyter
+    sounddevice
 
 MATLAB code should be able to run, as long as the phased array toolbox is installed.
 
